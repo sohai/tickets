@@ -86,16 +86,18 @@ export class BackendService {
     );
   }
 
-  assign(ticketId: number, userId: number): Observable<Ticket> {
+  assign(ticketId: number, userId: number | null): Observable<Ticket> {
     try {
-      // check if the user exists
-      this.findUserById(+userId);
+      if (userId) {
+        // check if the user exists
+        this.findUserById(+userId);
+      }
       const foundTicket = this.findTicketById(+ticketId);
 
       return of(foundTicket).pipe(
         delay(randomDelay()),
         tap((ticket: Ticket) => {
-          ticket.assigneeId = +userId;
+          ticket.assigneeId = userId;
         })
       );
     } catch (e) {
