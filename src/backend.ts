@@ -28,29 +28,35 @@ export class BackendService {
       id: 0,
       description: "Install a monitor arm",
       assigneeId: 111,
-      completed: false
+      completed: false,
     },
     {
       id: 1,
       description: "Move the desk to the new location",
       assigneeId: 111,
-      completed: false
-    }
+      completed: false,
+    },
   ];
 
-  storedUsers: User[] = [{ id: 111, name: "Victor" }];
+  storedUsers: User[] = [
+    { id: 111, name: "Victor" },
+    { id: 222, name: "Wojciech" },
+  ];
 
   lastId = 1;
 
   private findTicketById = (id: number) => {
-    const found = this.storedTickets.find(ticket => ticket.id === +id);
+    const found = this.storedTickets.find((ticket) => ticket.id === +id);
     if (found) return found;
     throw new Error(`Ticket (id=${id}) not found`);
   };
-  private findUserById = (id: number) =>
-    this.storedUsers.find(user => user.id === +id);
+  private findUserById = (id: number) => {
+    const found = this.storedUsers.find((user) => user.id === +id);
+    if (found) return found;
+    throw new Error(`User (id=${id}) not found`);
+  };
 
-  tickets() {
+  tickets(): Observable<Ticket[]> {
     return of(this.storedTickets).pipe(delay(randomDelay()));
   }
 
@@ -58,20 +64,20 @@ export class BackendService {
     return of(this.findTicketById(id)).pipe(delay(randomDelay()));
   }
 
-  users() {
+  users(): Observable<User[]> {
     return of(this.storedUsers).pipe(delay(randomDelay()));
   }
 
-  user(id: number) {
+  user(id: number): Observable<User> {
     return of(this.findUserById(id)).pipe(delay(randomDelay()));
   }
 
-  newTicket(payload: { description: string }) {
+  newTicket(payload: { description: string }): Observable<Ticket> {
     const newTicket: Ticket = {
       id: ++this.lastId,
       description: payload.description,
       assigneeId: null,
-      completed: false
+      completed: false,
     };
 
     return of(newTicket).pipe(
@@ -80,33 +86,34 @@ export class BackendService {
     );
   }
 
-  assign(ticketId: number, userId: number) {
-    const foundTicket = this.findTicketById(+ticketId);
-    const user = this.findUserById(+userId);
+  assign(ticketId: number, userId: number): Observable<Ticket> {
+    try {
+      // check if the user exists
+      this.findUserById(+userId);
+      const foundTicket = this.findTicketById(+ticketId);
 
-    if (foundTicket && user) {
       return of(foundTicket).pipe(
         delay(randomDelay()),
         tap((ticket: Ticket) => {
           ticket.assigneeId = +userId;
         })
       );
+    } catch (e) {
+      return throwError(e);
     }
-
-    return throwError(new Error("ticket or user not found"));
   }
 
-  complete(ticketId: number, completed: boolean) {
-    const foundTicket = this.findTicketById(+ticketId);
-    if (foundTicket) {
+  complete(ticketId: number, completed: boolean): Observable<Ticket> {
+    try {
+      const foundTicket = this.findTicketById(+ticketId);
       return of(foundTicket).pipe(
         delay(randomDelay()),
         tap((ticket: Ticket) => {
-          ticket.completed = true;
+          ticket.completed = completed;
         })
       );
+    } catch (e) {
+      return throwError(e);
     }
-
-    return throwError(new Error("ticket not found"));
   }
 }
