@@ -1,13 +1,11 @@
-import React, { createContext, useEffect, useReducer } from "react";
+import React, { createContext, useEffect, useReducer, useState } from "react";
 import { BackendService } from "../backend";
 
-const BackendContext = createContext<Partial<BackendService> | undefined>(
-  undefined
-);
+const BackendContext = createContext<BackendService | undefined>(undefined);
 
 function BackendProvider(props: {
   children: React.ReactNode;
-  value: Partial<BackendService>;
+  value: BackendService;
 }): React.ReactElement {
   return <BackendContext.Provider {...props} />;
 }
@@ -18,13 +16,15 @@ type State<T> = {
   data: T;
 };
 
-function useBackend<T>({
+function useBackend<T, F = null>({
   fetchFn,
   initialData,
+  pause = false,
 }: {
-  fetchFn: (backend: Partial<BackendService>) => Promise<T>;
+  fetchFn: (backend: BackendService, args?: F) => Promise<T>;
   initialData: T;
-}) {
+  pause?: boolean;
+}): [State<T>, Function] {
   const backend = React.useContext(BackendContext);
   if (backend === undefined) {
     throw new Error(`useBackend must be used within a BackendProvider`);
@@ -56,6 +56,13 @@ function useBackend<T>({
   }
 
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [refechCount, setRefetchCount] = useState(0);
+  const [fetcchArgs, setFetchArgs] = useState<F>();
+
+  const refetch = (args: F) => {
+    setRefetchCount(refechCount + 1);
+    setFetchArgs(args);
+  };
 
   useEffect(() => {
     let cancelRequest = false;
@@ -63,7 +70,7 @@ function useBackend<T>({
     const fetchData = async () => {
       dispatch({ type: "fetching" });
       try {
-        const response = await fetchFn(backend);
+        const response = await fetchFn(backend, fetcchArgs);
         if (cancelRequest) return;
         dispatch({ type: "fetched", payload: response });
       } catch (error) {
@@ -72,14 +79,16 @@ function useBackend<T>({
       }
     };
 
-    fetchData();
+    if (!pause || refechCount > 0) {
+      fetchData();
+    }
 
     return function cleanup() {
       cancelRequest = true;
     };
-  }, [fetchFn, backend]);
+  }, [fetchFn, backend, fetcchArgs, pause, refechCount]);
 
-  return state;
+  return [state, refetch];
 }
 
 export { BackendProvider, useBackend };

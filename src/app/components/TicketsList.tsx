@@ -1,7 +1,9 @@
 import React, { useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Ticket } from "../../backend";
+import { Ticket, User } from "../../backend";
 import { useBackend } from "../backend.context";
+import { AssigneeSelect } from "./AssigneeSelect";
+import { CompletedCheckbox } from "./CompletedCheckbox";
 
 function TicketsList() {
   const fetchTicktes = useCallback(
@@ -9,8 +11,14 @@ function TicketsList() {
     []
   );
 
-  const { status, data, error } = useBackend<Ticket[]>({
+  const [{ status, data, error }] = useBackend<Ticket[]>({
     fetchFn: fetchTicktes,
+    initialData: [],
+  });
+
+  const fetchUsers = useCallback((backend) => backend.users().toPromise(), []);
+  const [{ status: usersStatus, data: users }] = useBackend<User[]>({
+    fetchFn: fetchUsers,
     initialData: [],
   });
 
@@ -42,8 +50,20 @@ function TicketsList() {
               <tr key={id}>
                 <td>{id}</td>
                 <td>{description}</td>
-                <td>{completed}</td>
-                <td>{assigneeId}</td>
+                <td>
+                  <CompletedCheckbox id={id} completed={completed} />
+                </td>
+                <td>
+                  {" "}
+                  {usersStatus === "fetching" && "Loading..."}
+                  {usersStatus === "fetched" && (
+                    <AssigneeSelect
+                      ticketId={id}
+                      id={assigneeId}
+                      users={users}
+                    />
+                  )}
+                </td>
                 <td>
                   <Link to={`/ticket/${id}`}>Edit</Link>
                 </td>
