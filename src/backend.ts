@@ -23,7 +23,7 @@ function randomDelay() {
 }
 
 export class BackendService {
-  storedTickets: Ticket[] = [
+  private storedTickets: Ticket[] = [
     {
       id: 0,
       description: "Install a monitor arm",
@@ -38,12 +38,12 @@ export class BackendService {
     },
   ];
 
-  storedUsers: User[] = [
+  private storedUsers: User[] = [
     { id: 111, name: "Victor" },
     { id: 222, name: "Wojciech" },
   ];
 
-  lastId = 1;
+  private lastId = 1;
 
   private findTicketById = (id: number) => {
     const found = this.storedTickets.find((ticket) => ticket.id === +id);

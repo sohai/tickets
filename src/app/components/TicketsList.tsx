@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Ticket, User } from "../../backend";
-import { useBackend } from "../backend.context";
+import { useBackend } from "../providers/backend.context";
 import { AssigneeSelect } from "./AssigneeSelect";
 import { CompletedCheckbox } from "./CompletedCheckbox";
 
@@ -24,6 +24,8 @@ function TicketsList() {
 
   return (
     <>
+      <Link to="/ticket/new">Create new</Link>
+
       <table>
         <thead>
           <tr>

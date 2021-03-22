@@ -4,6 +4,7 @@ import { BackendService } from "../backend";
 import "./app.css";
 import { BackendProvider } from "./backend.context";
 import TicketDetails from "./components/TicketDetails";
+import TicketNew from "./components/TicketNew";
 import TicketsList from "./components/TicketsList";
 
 const backend = new BackendService();
@@ -15,6 +16,9 @@ const App = () => {
         <Switch>
           <Route path="/" exact>
             <TicketsList />
+          </Route>
+          <Route path="/ticket/new">
+            <TicketNew />
           </Route>
           <Route path="/ticket/:id">
             <TicketDetails />

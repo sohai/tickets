@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Prompt } from "react-router-dom";
 import { BackendService, User } from "../../backend";
-import { useBackend } from "../backend.context";
+import { useBackend } from "../providers/backend.context";
 
 export function AssigneeSelect({
   users,

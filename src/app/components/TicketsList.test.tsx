@@ -1,24 +1,23 @@
 import { render, screen } from "@testing-library/react";
-import { of } from "rxjs";
 import TicketsList from "./TicketsList";
-import { BackendProvider } from "../backend.context";
+import { BackendProvider } from "../providers/backend.context";
 import { MemoryRouter } from "react-router";
+import { of, throwError } from "rxjs";
 
-const backendMock = {
-  tickets: () =>
-    of([
-      {
-        id: 1,
-        description: "test",
-        assigneeId: null,
-        completed: false,
-      },
-    ]),
+const ticket = {
+  id: 1,
+  description: "test",
+  assigneeId: null,
+  completed: false,
 };
 
 test("renders TicketsList", async () => {
   render(
-    <BackendProvider value={backendMock}>
+    <BackendProvider
+      value={{
+        tickets: () => of([{ ...ticket }]),
+      }}
+    >
       <TicketsList />
     </BackendProvider>,
     { wrapper: MemoryRouter }
@@ -28,4 +27,20 @@ test("renders TicketsList", async () => {
 
   //wait for the useEffect
   expect(await screen.findByText("test")).toBeInTheDocument();
+});
+
+test("renders fetch error ", async () => {
+  render(
+    <BackendProvider
+      value={{
+        tickets: () => throwError(new Error("fail")),
+      }}
+    >
+      <TicketsList />
+    </BackendProvider>,
+    { wrapper: MemoryRouter }
+  );
+
+  //wait for the useEffect
+  expect(await screen.findByText(/fail/i)).toBeInTheDocument();
 });

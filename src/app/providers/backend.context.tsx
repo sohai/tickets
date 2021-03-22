@@ -1,11 +1,10 @@
 import React, { createContext, useEffect, useReducer, useState } from "react";
-import { BackendService } from "../backend";
 
-const BackendContext = createContext<BackendService | undefined>(undefined);
+const BackendContext = createContext<any>(undefined);
 
 function BackendProvider(props: {
   children: React.ReactNode;
-  value: BackendService;
+  value: any;
 }): React.ReactElement {
   return <BackendContext.Provider {...props} />;
 }
@@ -21,7 +20,7 @@ function useBackend<T, F = null>({
   initialData,
   pause = false,
 }: {
-  fetchFn: (backend: BackendService, args?: F) => Promise<T>;
+  fetchFn: (backend: any, args?: F) => Promise<T>;
   initialData: T;
   pause?: boolean;
 }): [State<T>, Function] {
