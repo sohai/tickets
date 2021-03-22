@@ -1,21 +1,27 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BackendService } from "../backend";
 import "./app.css";
+import { BackendProvider } from "./backend.context";
 import TicketDetails from "./components/TicketDetails";
 import TicketsList from "./components/TicketsList";
 
+const backend = new BackendService();
+
 const App = () => {
   return (
-    <Router>
-      <Switch>
-        <Route path="/" exact>
-          <TicketsList />
-        </Route>
-        <Route path="/ticket/:id">
-          <TicketDetails />
-        </Route>
-      </Switch>
-    </Router>
+    <BackendProvider value={backend}>
+      <Router>
+        <Switch>
+          <Route path="/" exact>
+            <TicketsList />
+          </Route>
+          <Route path="/ticket/:id">
+            <TicketDetails />
+          </Route>
+        </Switch>
+      </Router>
+    </BackendProvider>
   );
 };
 
