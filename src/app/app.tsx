@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { BackendService } from "../backend";
 import "./app.css";
-import { BackendProvider } from "./backend.context";
+import { BackendProvider } from "./providers/backend.context";
 import TicketDetails from "./components/TicketDetails";
 import TicketNew from "./components/TicketNew";
 import TicketsList from "./components/TicketsList";
